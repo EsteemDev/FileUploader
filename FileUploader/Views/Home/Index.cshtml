@@ -1,0 +1,70 @@
+﻿@model IEnumerable<FileUploader.Models.UploadedFile>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Esteem Dev</p>
+</div>
+
+<div>
+    <form enctype="multipart/form-data">
+        <div>
+            <input type="file" name="file"/>
+        </div>
+        <div>
+            <div class="progress mt-3 mb-3">
+                <div class="progress-bar progress-bar-striped active" role="progressbar" id="progressBar" style="width:0%">
+                    0%
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" value="Upload" class="btn btn-success" onclick="uploadFile()" />
+        </div>
+    </form>
+</div>
+
+<div class="mt-5">
+    <h4 class="mt-2">Uploaded Files:</h4>
+    <hr />
+    <ul>
+        @foreach (var item in Model)
+        {
+            <li class="mb-2">
+                <a href="@item.FileLink">@item.FileName | @item.FileSize</a>
+            </li>
+        }
+    </ul>
+</div>
+
+<script>
+    function uploadFile() {
+        var file = document.querySelector('input[type=file]').files[0];
+        var formData = new FormData();
+        formData.append("file", file);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/Home/Upload", true);
+
+        xhr.upload.onprogress = function (e) {
+            if (e.lengthComputable) {
+                var percentComplete = (e.loaded / e.total) * 100;
+                var pbar = document.getElementById('progressBar');
+                pbar.style.width = percentComplete + '%';
+                pbar.innerText = parseInt(percentComplete) + '%';
+            }
+        };
+
+        xhr.onload = function () {
+            if (xhr.status == 200) {
+                location.reload();
+            } else {
+                alert("اشکال در آپلود فایل" + xhr.statusText);
+            }
+        };
+
+        xhr.send(formData);
+    }
+</script>
